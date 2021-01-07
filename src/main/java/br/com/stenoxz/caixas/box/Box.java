@@ -8,7 +8,12 @@ import br.com.stenoxz.caixas.utils.TextUtils;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -83,9 +88,17 @@ public class Box {
                     }
                 }
 
-                if (item == null || item.getRarity().getPercentage() > 10) return;
+                if (item == null || !item.getItem().hasItemMeta() || !item.getItem().getItemMeta().hasDisplayName() || item.getRarity().getPercentage() > 10) return;
 
-                Bukkit.broadcastMessage(Main.broadcastRare(player.getName(), item.getRarity(), type));
+                TextComponent message = new TextComponent("");
+
+                BaseComponent baseComponent = new TextComponent(Main.broadcastRare(player.getName(), item.getRarity(), type));
+                baseComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[] { new TextComponent(stack.getItemMeta().getDisplayName()) }));
+
+                message.addExtra(baseComponent);
+
+                Bukkit.getOnlinePlayers().forEach(player -> player.spigot().sendMessage(message));
+
                 player.getWorld().strikeLightningEffect(player.getLocation());
             }
         }.runTaskLaterAsynchronously(Main.getInstance(), 40L);

@@ -83,7 +83,17 @@ public class BoxTypeFactory {
             }
 
             if (split.length == 5) {
-                item_add.addUnsafeEnchantment(Enchantment.getById(Integer.parseInt(split[3])), Integer.parseInt(split[4]));
+
+                if (split[3].contains(" ")){
+                    String[] enchantments = split[3].split(" ");
+                    String[] levels = split[4].split(" ");
+
+                    for (int i = 0; i < enchantments.length; i++){
+                        item_add.addUnsafeEnchantment(Enchantment.getById(Integer.parseInt(enchantments[i])), Integer.parseInt(levels[i]));
+                    }
+                } else {
+                    item_add.addUnsafeEnchantment(Enchantment.getById(Integer.parseInt(split[3])), Integer.parseInt(split[4]));
+                }
             }
 
             item_add.setAmount(amount);
