@@ -1,0 +1,14 @@
+#Adicione quantas quiser#
+common:
+  name: 'comum'
+  displayName: '&e&lCOMUM'
+  #Porcentagem de chance de cair o item#
+  percentage: 50
+uncommon:
+  name: 'incomum'
+  displayName: '&a&lINCOMUM'
+  percentage: 30
+rare:
+  name: 'raro'
+  displayName: '&5&lRARO'
+  percentage: 20

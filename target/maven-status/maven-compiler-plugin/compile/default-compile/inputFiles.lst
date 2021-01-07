@@ -1,0 +1,15 @@
+C:\workspace\sCaixas\src\main\java\br\com\stenoxz\caixas\utils\TextUtils.java
+C:\workspace\sCaixas\src\main\java\br\com\stenoxz\caixas\Main.java
+C:\workspace\sCaixas\src\main\java\br\com\stenoxz\caixas\item\BoxItem.java
+C:\workspace\sCaixas\src\main\java\br\com\stenoxz\caixas\item\rarity\BoxItemRarity.java
+C:\workspace\sCaixas\src\main\java\br\com\stenoxz\caixas\command\GiveBoxCommand.java
+C:\workspace\sCaixas\src\main\java\br\com\stenoxz\caixas\factory\BoxTypeFactory.java
+C:\workspace\sCaixas\src\main\java\br\com\stenoxz\caixas\listeners\BoxListeners.java
+C:\workspace\sCaixas\src\main\java\br\com\stenoxz\caixas\type\BoxType.java
+C:\workspace\sCaixas\src\main\java\br\com\stenoxz\caixas\factory\BoxFactory.java
+C:\workspace\sCaixas\src\main\java\br\com\stenoxz\caixas\box\Box.java
+C:\workspace\sCaixas\src\main\java\br\com\stenoxz\caixas\factory\BoxItemRarityFactory.java
+C:\workspace\sCaixas\src\main\java\br\com\stenoxz\caixas\factory\BoxItemFactory.java
+C:\workspace\sCaixas\src\main\java\br\com\stenoxz\caixas\utils\ItemBuilder.java
+C:\workspace\sCaixas\src\main\java\br\com\stenoxz\caixas\utils\Config.java
+C:\workspace\sCaixas\src\main\java\br\com\stenoxz\caixas\controller\BoxController.java

@@ -1,0 +1,3 @@
+inventoryTitle: '&aAbrindo Caixa %type%'
+#Será enviada se o jogador pegar um item com 10% de chance ou menos#
+broadcastRare: '&fO jogador %player% ganhou um item %rarity%&f na Caixa %type%'

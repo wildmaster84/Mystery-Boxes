@@ -1,0 +1,10 @@
+#Adicione quantas quiser#
+basica:
+  tipo:
+    name: 'Básica'
+    displayName: '§eBásica'
+    #Padrão: TIPO ID;DURABILIDADE (CASO HOUVER NECESSIDADE), ENCANTAMENTO ID, LEVEL#
+    icon: '1'
+    #Padrão: TIPO ID;DURABILIDADE (CASO HOUVER NECESSIDADE), QUANTIDADE, RARIDADE, ENCANTAMENTO ID, LEVEL#
+    items:
+      - '1,1,common'
