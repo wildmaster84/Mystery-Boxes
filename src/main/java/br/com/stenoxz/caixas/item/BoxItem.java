@@ -14,5 +14,8 @@ public class BoxItem {
     private ItemStack item;
 
     @Setter
+    private String command;
+
+    @Setter
     private BoxItemRarity rarity;
 }

@@ -53,7 +53,7 @@ public class BoxListeners implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event){
-        if (event.getClickedInventory().getTitle() == null) return;
+        if (event.getClickedInventory() == null || event.getClickedInventory().getTitle() == null) return;
 
         plugin.getController().getTypes().forEach(type -> {
             if (TextUtils.format(event.getClickedInventory().getTitle(), type).equals(TextUtils.format(Main.inventoryTitle, type)) || event.getClickedInventory().getTitle().startsWith("Itens da Caixa")){

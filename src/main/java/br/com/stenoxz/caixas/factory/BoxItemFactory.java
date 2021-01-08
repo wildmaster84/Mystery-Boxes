@@ -6,9 +6,10 @@ import org.bukkit.inventory.ItemStack;
 
 public class BoxItemFactory {
 
-    public BoxItem newBoxItem(ItemStack item, BoxItemRarity rarity){
+    public BoxItem newBoxItem(ItemStack item, String command, BoxItemRarity rarity){
         return BoxItem.builder()
                 .item(item)
+                .command(command)
                 .rarity(rarity)
                 .build();
     }

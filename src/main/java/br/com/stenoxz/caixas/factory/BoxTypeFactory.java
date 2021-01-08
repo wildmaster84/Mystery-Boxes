@@ -5,6 +5,7 @@ import br.com.stenoxz.caixas.item.BoxItem;
 import br.com.stenoxz.caixas.item.rarity.BoxItemRarity;
 import br.com.stenoxz.caixas.type.BoxType;
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -14,17 +15,64 @@ import java.util.List;
 
 public class BoxTypeFactory {
 
-    public BoxType newType(String name, String displayName, String icon, List<String> items) {
+    private final FileConfiguration config;
+
+    public BoxTypeFactory(Main plugin){
+        this.config = plugin.getBoxesConfig().getConfig();
+    }
+
+    public BoxType newType(String name, String displayName, String icon, String items) {
         return BoxType.builder()
                 .name(name)
                 .displayName(ChatColor.translateAlternateColorCodes('&', displayName))
-                .icon(getIcon(icon, displayName))
+                .icon(getIcon(icon))
                 .items(boxItems(items))
                 .build();
     }
 
-    private ItemStack getIcon(String icon, String displayName){
-        String[] split = icon.split(",");
+    private ItemStack getIcon(String icon){
+        int id = Integer.parseInt(config.getString(icon + ".id"));
+
+        ItemStack item = new ItemStack(id);
+        ItemMeta meta = item.getItemMeta();
+
+        if (Integer.parseInt(config.getString(icon + ".data")) != 0){
+            item.setDurability(Short.parseShort(config.getString(icon + ".data")));
+        }
+
+        String name = ChatColor.translateAlternateColorCodes('&', config.getString(icon + ".name"));
+
+        meta.setDisplayName(name);
+
+        List<String> lore = new ArrayList<>();
+
+        for (String s : config.getStringList(icon + ".lore")) {
+            if (s.equalsIgnoreCase("")) continue;
+            lore.add(ChatColor.translateAlternateColorCodes('&', s));
+        }
+
+        if (!lore.isEmpty()) {
+            meta.setLore(lore);
+        }
+
+        List<String> enchantments = config.getStringList(icon + ".enchantments");
+
+        if (!enchantments.isEmpty()){
+            for (String enchants : enchantments) {
+                if (!enchants.contains(";")){
+                    continue;
+                }
+
+                String[] split = enchants.split(";");
+                item.addUnsafeEnchantment(Enchantment.getById(Integer.parseInt(split[0])), Integer.parseInt(split[1]));
+            }
+        }
+
+        item.setItemMeta(meta);
+
+        return item;
+
+        /*String[] split = icon.split(",");
 
         String itemId = split[0];
         short durability = 9999;
@@ -53,13 +101,64 @@ public class BoxTypeFactory {
         meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', displayName));
         item_add.setItemMeta(meta);
 
-        return item_add;
+        return item_add;*/
     }
 
-    private List<BoxItem> boxItems(List<String> items) {
+    private List<BoxItem> boxItems(String items) {
         List<BoxItem> boxItems = new ArrayList<>();
 
-        for (String spliter : items) {
+        BoxItemFactory factory = new BoxItemFactory();
+
+        config.getConfigurationSection(items).getKeys(false).forEach(string -> {
+            int id = Integer.parseInt(config.getString(items + "." + string + ".id"));
+            int amount = Integer.parseInt(config.getString(items + "." + string + ".amount"));
+
+            ItemStack item = new ItemStack(id, amount);
+            ItemMeta meta = item.getItemMeta();
+
+            if (Integer.parseInt(config.getString(items + "." + string + ".data")) != 0){
+                item.setDurability(Short.parseShort(config.getString(items + "." + string + ".data")));
+            }
+
+            String name = ChatColor.translateAlternateColorCodes('&', config.getString(items + "." + string + ".name"));
+
+            if (!name.equalsIgnoreCase(""))
+                meta.setDisplayName(name);
+
+            List<String> lore = new ArrayList<>();
+
+            for (String s : config.getStringList(items + "." + string + ".lore")) {
+                if (s.equalsIgnoreCase("")) continue;
+                lore.add(ChatColor.translateAlternateColorCodes('&', s));
+            }
+
+            if (!lore.isEmpty()) {
+                meta.setLore(lore);
+            }
+
+            List<String> enchantments = config.getStringList(items + "." + string + ".enchantments");
+
+            if (!enchantments.isEmpty()){
+                for (String enchants : enchantments) {
+                    if (!enchants.contains(";")){
+                        continue;
+                    }
+
+                    String[] split = enchants.split(";");
+                    meta.addEnchant(Enchantment.getById(Integer.parseInt(split[0])), Integer.parseInt(split[1]), true);
+                }
+            }
+
+            item.setItemMeta(meta);
+
+            BoxItemRarity rarity = Main.getInstance().getController().rarity(config.getString(items + "." + string + ".rarity"));
+
+            String command = config.getString(items + "." + string + ".command");
+
+            boxItems.add(factory.newBoxItem(item, command.equalsIgnoreCase("") ? null : command, rarity));
+        });
+
+        /*for (String spliter : items) {
             String[] split = spliter.split(",");
             String itemId = split[0];
             int amount = Integer.parseInt(split[1]);
@@ -103,7 +202,7 @@ public class BoxTypeFactory {
             BoxItem item = itemFactory.newBoxItem(item_add, rarity);
 
             boxItems.add(item);
-        }
+        }*/
 
         return boxItems;
     }

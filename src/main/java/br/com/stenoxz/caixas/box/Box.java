@@ -9,11 +9,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -72,13 +70,6 @@ public class Box {
         new BukkitRunnable(){
             @Override
             public void run() {
-                if (player.getInventory().firstEmpty() == -1){
-                    player.getWorld().dropItem(player.getLocation(), stack);
-                } else {
-                    player.getInventory().addItem(stack);
-                }
-                player.closeInventory();
-
                 BoxItem item = null;
 
                 for (BoxItem i : type.getItems()){
@@ -88,7 +79,21 @@ public class Box {
                     }
                 }
 
-                if (item == null || !item.getItem().hasItemMeta() || !item.getItem().getItemMeta().hasDisplayName() || item.getRarity().getPercentage() > 10) return;
+                player.closeInventory();
+
+                if (item == null) return;
+
+                if (item.getCommand() == null || item.getCommand().equalsIgnoreCase("")) {
+                    if (player.getInventory().firstEmpty() == -1) {
+                        player.getWorld().dropItem(player.getLocation(), stack);
+                    } else {
+                        player.getInventory().addItem(stack);
+                    }
+                } else {
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), item.getCommand().replaceAll("%player%", player.getName()));
+                }
+
+                if (!item.getItem().hasItemMeta() || !item.getItem().getItemMeta().hasDisplayName() || item.getRarity().getPercentage() > 10) return;
 
                 TextComponent message = new TextComponent("");
 

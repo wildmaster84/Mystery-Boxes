@@ -3,10 +3,49 @@ basica:
   tipo:
     name: 'Basica'
     displayName: '§eBásica'
-    #Padrão: TIPO ID;DURABILIDADE (CASO HOUVER NECESSIDADE), ENCANTAMENTO ID, LEVEL#
-    icon: '54'
-    #Padrão: TIPO ID;DURABILIDADE (CASO HOUVER NECESSIDADE), QUANTIDADE, RARIDADE, ENCANTAMENTO ID, LEVEL#
+    icon:
+      name: '&eCaixa Básica'
+      id: '54'
+      data: '0'
+      lore:
+        - '&fCaixa mais simples'
+      enchantments: #Encatamento ID;Level#
+        - ''
+    #Tem que ter todos os valores, mesmo que forem ficar vazio#
     items:
-      - '276,1,incomum,16,1'
-      - '276,1,raro,16 34 19,5 3 2'
-      - '368,16,comum'
+      1:
+        name: '' #Deixe vazio se for o name padrão#
+        id: '276'
+        data: '0'
+        amount: '1'
+        rarity: 'incomum' #As raridades do raridades.yml#
+        lore:
+          - ''
+        enchantments:
+          - '16;1'
+        #Caso tenha command, o jogador ganhará o comanndo e não o item. %player% = nick do ganhador#
+        command: ''
+      2:
+        name: '&5Espada Fortona'
+        id: '276'
+        data: '0'
+        amount: '1'
+        rarity: 'raro'
+        lore:
+          - ''
+        enchantments:
+          - '16;5'
+          - '34;3'
+          - '19;2'
+        command: ''
+      3:
+        name: ''
+        id: '368'
+        data: '0'
+        amount: '16'
+        rarity: 'comum'
+        lore:
+          - ''
+        enchantments:
+          - ''
+        command: ''
