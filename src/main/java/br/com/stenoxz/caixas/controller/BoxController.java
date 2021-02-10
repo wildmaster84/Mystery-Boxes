@@ -7,12 +7,12 @@ import br.com.stenoxz.caixas.factory.BoxTypeFactory;
 import br.com.stenoxz.caixas.item.rarity.BoxItemRarity;
 import br.com.stenoxz.caixas.type.BoxType;
 import br.com.stenoxz.caixas.utils.Config;
+import com.google.common.collect.Sets;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -25,9 +25,12 @@ public class BoxController {
 
     private Set<BoxType> types;
 
+    private Set<Box> boxes;
+
     {
-        rarities = new HashSet<>();
-        types = new HashSet<>();
+        rarities = Sets.newConcurrentHashSet();
+        types = Sets.newConcurrentHashSet();
+        boxes = Sets.newConcurrentHashSet();
     }
 
     public void loadRarities() {
@@ -63,8 +66,16 @@ public class BoxController {
         return types.stream().filter(type -> type.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
     }
 
+    public void create(Box box){
+        boxes.add(box);
+    }
+
+    public void remove(Box box){
+        boxes.remove(box);
+    }
+
     public void giveBox(Player player, BoxType type) {
-        Box box = plugin.getFactory().newBox(type);
+        Box box = plugin.getFactory().newBox(type, player.getName());
 
         if (player.getInventory().firstEmpty() == -1) {
             player.getWorld().dropItem(player.getLocation(), box.getItem());

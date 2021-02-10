@@ -15,135 +15,214 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 
-import java.util.Random;
+import java.util.*;
 
 @Getter
 @Builder
-public class Box {
+public class Box implements Listener {
 
     @Setter
     private BoxType type;
 
-    private BukkitTask task;
+    private final Main plugin;
 
-    public ItemStack getItem(){
+    private final Player owner;
+
+    private int i, rotation;
+
+    private Map<Integer, BoxItem> items;
+
+    private Inventory inv;
+
+    public ItemStack getItem() {
         return type.getIcon();
     }
 
-    public void openBox(Player player){
-        Inventory inventory = Bukkit.createInventory(null, 3*9, TextUtils.format(Main.inventoryTitle, type));
+    public void openBox() {
+        if (owner == null) return;
 
-        fillGlass(inventory);
+        inv = Bukkit.createInventory(owner, 3 * 9, TextUtils.format(Main.inventoryTitle, type));
 
-        player.openInventory(inventory);
+        fillGlass(inv);
 
-        task = new BukkitRunnable(){
-            int i = 0;
+        owner.openInventory(inv);
 
-            @Override
-            public void run() {
-                i++;
+        plugin.getController().create(this);
 
-                if (player.getOpenInventory().getTopInventory().equals(inventory)) {
-                    if (i == 1){
-                        itemRotate(inventory);
-                    }
-
-                    player.playSound(player.getLocation(), Sound.CLICK, 1F, 1F);
-                }
-
-                if (i == 40){
-                    win(player, inventory.getItem(13));
-                    cancel();
-                    task = null;
-                }
-            }
-        }.runTaskTimerAsynchronously(Main.getInstance(), 0L, 5L);
+        //itemRotate(inventory);
     }
 
-    private void win(Player player, ItemStack stack){
-        new BukkitRunnable(){
+    public void win(ItemStack stack) {
+        if (owner == null) return;
+
+        new BukkitRunnable() {
             @Override
             public void run() {
                 BoxItem item = null;
 
-                for (BoxItem i : type.getItems()){
+                for (BoxItem i : type.getItems()) {
                     if (i.getItem().equals(stack)) {
                         item = i;
                         break;
                     }
                 }
 
-                player.closeInventory();
+                owner.closeInventory();
 
                 if (item == null) return;
 
                 if (item.getCommand() == null || item.getCommand().equalsIgnoreCase("")) {
-                    if (player.getInventory().firstEmpty() == -1) {
-                        player.getWorld().dropItem(player.getLocation(), stack);
+                    if (owner.getInventory().firstEmpty() == -1) {
+                        owner.getWorld().dropItem(owner.getLocation(), stack);
                     } else {
-                        player.getInventory().addItem(stack);
+                        owner.getInventory().addItem(stack);
                     }
                 } else {
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), item.getCommand().replaceAll("%player%", player.getName()));
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), item.getCommand().replaceAll("%player%", owner.getName()));
                 }
 
-                if (!item.getItem().hasItemMeta() || !item.getItem().getItemMeta().hasDisplayName() || item.getRarity().getPercentage() > 10) return;
+                if (!item.getItem().hasItemMeta() || !item.getItem().getItemMeta().hasDisplayName() || item.getRarity().getPercentage() > 10)
+                    return;
 
                 TextComponent message = new TextComponent("");
 
-                BaseComponent baseComponent = new TextComponent(Main.broadcastRare(player.getName(), item.getRarity(), type));
-                baseComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[] { new TextComponent(stack.getItemMeta().getDisplayName()) }));
+                BaseComponent baseComponent = new TextComponent(Main.broadcastRare(owner.getName(), item.getRarity(), type));
+                baseComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{new TextComponent(stack.getItemMeta().getDisplayName())}));
 
                 message.addExtra(baseComponent);
 
                 Bukkit.getOnlinePlayers().forEach(player -> player.spigot().sendMessage(message));
 
-                player.getWorld().strikeLightningEffect(player.getLocation());
+                owner.getWorld().strikeLightningEffect(owner.getLocation());
             }
         }.runTaskLaterAsynchronously(Main.getInstance(), 40L);
+
+        plugin.getController().remove(this);
     }
 
-    private void itemRotate(Inventory inv){
-        new BukkitRunnable(){
-            final ItemStack item = randomItem();
-            int i = 9;
+    public void itemRotate() {
+        if (owner == null) return;
+        if (items == null)
+            items = new HashMap<>();
 
-            @Override
-            public void run() {
-                if (task == null){
-                    cancel();
-                    return;
-                }
-                i++;
-                if (i == 17){
-                    cancel();
-                    return;
-                }
-                inv.setItem(i, item);
+        i++;
+        rotation++;
 
-                if (i == 11)
-                    itemRotate(inv);
-            }
-        }.runTaskTimer(Main.getInstance(), 0L, 5L);
+        owner.playSound(owner.getLocation(), Sound.CLICK, 1F, 1F);
+
+        if (rotation == 2) {
+            inv.setItem(11, items.get(10).getItem());
+            items.put(11, items.get(10));
+
+        } else if (rotation == 3) {
+            inv.setItem(12, items.get(11).getItem());
+            items.put(12, items.get(11));
+
+            inv.setItem(11, items.get(10).getItem());
+            items.put(11, items.get(10));
+        } else if (rotation == 4) {
+            inv.setItem(13, items.get(12).getItem());
+            items.put(13, items.get(12));
+
+            inv.setItem(12, items.get(11).getItem());
+            items.put(12, items.get(11));
+
+            inv.setItem(11, items.get(10).getItem());
+            items.put(11, items.get(10));
+        } else if (rotation == 5) {
+            inv.setItem(14, items.get(13).getItem());
+            items.put(14, items.get(13));
+
+            inv.setItem(13, items.get(12).getItem());
+            items.put(13, items.get(12));
+
+            inv.setItem(12, items.get(11).getItem());
+            items.put(12, items.get(11));
+
+            inv.setItem(11, items.get(10).getItem());
+            items.put(11, items.get(10));
+        } else if (rotation == 6) {
+            inv.setItem(15, items.get(14).getItem());
+            items.put(15, items.get(14));
+
+            inv.setItem(14, items.get(13).getItem());
+            items.put(14, items.get(13));
+
+            inv.setItem(13, items.get(12).getItem());
+            items.put(13, items.get(12));
+
+            inv.setItem(12, items.get(11).getItem());
+            items.put(12, items.get(11));
+
+            inv.setItem(11, items.get(10).getItem());
+            items.put(11, items.get(10));
+        } else if (rotation == 7) {
+            inv.setItem(16, items.get(15).getItem());
+            items.put(16, items.get(15));
+
+            inv.setItem(15, items.get(14).getItem());
+            items.put(15, items.get(14));
+
+            inv.setItem(14, items.get(13).getItem());
+            items.put(14, items.get(13));
+
+            inv.setItem(13, items.get(12).getItem());
+            items.put(13, items.get(12));
+
+            inv.setItem(12, items.get(11).getItem());
+            items.put(12, items.get(11));
+
+            inv.setItem(11, items.get(10).getItem());
+            items.put(11, items.get(10));
+        } else if (rotation > 7) {
+            items.remove(16);
+
+            inv.setItem(16, items.get(15).getItem());
+            items.put(16, items.get(15));
+
+            inv.setItem(15, items.get(14).getItem());
+            items.put(15, items.get(14));
+
+            inv.setItem(14, items.get(13).getItem());
+            items.put(14, items.get(13));
+
+            inv.setItem(13, items.get(12).getItem());
+            items.put(13, items.get(12));
+
+            inv.setItem(12, items.get(11).getItem());
+            items.put(12, items.get(11));
+
+            inv.setItem(11, items.get(10).getItem());
+            items.put(11, items.get(10));
+        }
+
+        BoxItem randomItem = randomItem();
+
+        inv.setItem(10, randomItem.getItem());
+        items.put(10, randomItem);
+
+        if (i == 40){
+            win(inv.getItem(13));
+        }
+
     }
 
-    private ItemStack randomItem(){
+    private BoxItem randomItem() {
         BoxItem item = type.getItems().get(new Random().nextInt(type.getItems().size()));
 
-        if (new Random().nextInt(100) <= item.getRarity().getPercentage()){
-            return item.getItem();
+        if (new Random().nextInt(100) <= item.getRarity().getPercentage()) {
+            return item;
         } else {
             return randomItem();
         }
     }
 
-    private void fillGlass(Inventory inventory){
+    private void fillGlass(Inventory inventory) {
         inventory.setItem(0, new ItemBuilder().setMaterial(Material.STAINED_GLASS_PANE).setDurability(14).getStack());
         inventory.setItem(9, new ItemBuilder().setMaterial(Material.STAINED_GLASS_PANE).setDurability(14).getStack());
         inventory.setItem(18, new ItemBuilder().setMaterial(Material.STAINED_GLASS_PANE).setDurability(14).getStack());

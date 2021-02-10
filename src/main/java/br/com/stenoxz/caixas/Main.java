@@ -2,6 +2,7 @@ package br.com.stenoxz.caixas;
 
 import br.com.stenoxz.caixas.command.GiveBoxCommand;
 import br.com.stenoxz.caixas.controller.BoxController;
+import br.com.stenoxz.caixas.event.TimeSecondEvent;
 import br.com.stenoxz.caixas.factory.BoxFactory;
 import br.com.stenoxz.caixas.item.rarity.BoxItemRarity;
 import br.com.stenoxz.caixas.listeners.BoxListeners;
@@ -10,7 +11,6 @@ import br.com.stenoxz.caixas.utils.Config;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.craftbukkit.v1_8_R3.CraftServer;
-import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
@@ -51,16 +51,12 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onLoad() {
-        super.onLoad();
-
         controller = new BoxController(this);
         factory = new BoxFactory();
     }
 
     @Override
     public void onEnable() {
-        super.onEnable();
-
         instance = this;
 
         saveDefaultConfig();
@@ -78,13 +74,10 @@ public class Main extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new BoxListeners(this), this);
 
         ((CraftServer)Bukkit.getServer()).getCommandMap().register("givebox", new GiveBoxCommand(this));
-    }
 
-    @Override
-    public void onDisable() {
-        super.onDisable();
-
-        HandlerList.unregisterAll();
+        Bukkit.getScheduler().scheduleAsyncRepeatingTask(this, () -> {
+            new TimeSecondEvent().call();
+        }, 0L, 5L);
     }
 
     public static String broadcastRare(String playerName, BoxItemRarity rarity, BoxType type){

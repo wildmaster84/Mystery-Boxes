@@ -1,4 +1,3 @@
-br\com\stenoxz\caixas\box\Box$3.class
 br\com\stenoxz\caixas\factory\BoxFactory.class
 br\com\stenoxz\caixas\utils\Config.class
 br\com\stenoxz\caixas\controller\BoxController.class
@@ -6,6 +5,7 @@ br\com\stenoxz\caixas\factory\BoxItemFactory.class
 br\com\stenoxz\caixas\factory\BoxItemRarityFactory.class
 br\com\stenoxz\caixas\type\BoxType.class
 br\com\stenoxz\caixas\type\BoxType$BoxTypeBuilder.class
+br\com\stenoxz\caixas\event\TimeSecondEvent.class
 br\com\stenoxz\caixas\box\Box$BoxBuilder.class
 br\com\stenoxz\caixas\Main.class
 br\com\stenoxz\caixas\item\BoxItem$BoxItemBuilder.class
@@ -13,7 +13,6 @@ br\com\stenoxz\caixas\item\rarity\BoxItemRarity$BoxItemRarityBuilder.class
 br\com\stenoxz\caixas\box\Box$1.class
 br\com\stenoxz\caixas\item\rarity\BoxItemRarity.class
 br\com\stenoxz\caixas\box\Box.class
-br\com\stenoxz\caixas\box\Box$2.class
 br\com\stenoxz\caixas\item\BoxItem.class
 br\com\stenoxz\caixas\command\GiveBoxCommand.class
 br\com\stenoxz\caixas\factory\BoxTypeFactory.class

@@ -3,6 +3,7 @@ C:\workspace\sCaixas\src\main\java\br\com\stenoxz\caixas\Main.java
 C:\workspace\sCaixas\src\main\java\br\com\stenoxz\caixas\item\BoxItem.java
 C:\workspace\sCaixas\src\main\java\br\com\stenoxz\caixas\item\rarity\BoxItemRarity.java
 C:\workspace\sCaixas\src\main\java\br\com\stenoxz\caixas\command\GiveBoxCommand.java
+C:\workspace\sCaixas\src\main\java\br\com\stenoxz\caixas\event\TimeSecondEvent.java
 C:\workspace\sCaixas\src\main\java\br\com\stenoxz\caixas\factory\BoxTypeFactory.java
 C:\workspace\sCaixas\src\main\java\br\com\stenoxz\caixas\listeners\BoxListeners.java
 C:\workspace\sCaixas\src\main\java\br\com\stenoxz\caixas\type\BoxType.java

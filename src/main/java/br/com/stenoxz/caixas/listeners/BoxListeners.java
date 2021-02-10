@@ -2,11 +2,13 @@ package br.com.stenoxz.caixas.listeners;
 
 import br.com.stenoxz.caixas.Main;
 import br.com.stenoxz.caixas.box.Box;
+import br.com.stenoxz.caixas.event.TimeSecondEvent;
 import br.com.stenoxz.caixas.item.BoxItem;
+import br.com.stenoxz.caixas.type.BoxType;
 import br.com.stenoxz.caixas.utils.TextUtils;
-import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -15,27 +17,37 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-@RequiredArgsConstructor
 public class BoxListeners implements Listener {
 
     private final Main plugin;
+
+    public BoxListeners(Main plugin){
+        this.plugin = plugin;
+    }
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event){
         Player player = event.getPlayer();
 
-        if (event.getItem() != null && event.getItem().hasItemMeta() && event.getItem().getItemMeta().hasDisplayName()){
+        if (event.getItem() != null &&
+                event.getItem().hasItemMeta() &&
+                event.getItem().getItemMeta().hasDisplayName()){
             ItemStack stack = event.getItem();
 
-            plugin.getController().getTypes().forEach(type -> {
-                if (stack.equals(type.getIcon())){
+            for (BoxType type : plugin.getController().getTypes()) {
+                if (stack.getItemMeta().equals(type.getIcon().getItemMeta()) &&
+                        stack.getItemMeta().getLore().equals(type.getIcon().getItemMeta().getLore())){
                     event.setCancelled(true);
 
                     if (event.getAction().toString().contains("RIGHT")) {
-                        Box box = plugin.getFactory().newBox(type);
-                        box.openBox(player);
+                        if (stack.getAmount() == 1){
+                            player.setItemInHand(null);
+                        } else {
+                            stack.setAmount(stack.getAmount() - 1);
+                        }
 
-                        player.getInventory().removeItem(stack);
+                        Box box = plugin.getFactory().newBox(type, player.getName());
+                        box.openBox();
                     } else {
                         Inventory inventory = Bukkit.createInventory(null, 54, "Itens da Caixa " + type.getName());
 
@@ -44,10 +56,10 @@ public class BoxListeners implements Listener {
                         }
 
                         player.openInventory(inventory);
-
                     }
+                    break;
                 }
-            });
+            }
         }
     }
 
@@ -64,5 +76,14 @@ public class BoxListeners implements Listener {
         if (event.getInventory().getTitle().replaceAll("%type%", "").equals(ChatColor.translateAlternateColorCodes('&', Main.inventoryTitle).replaceAll("%type%", ""))){
             event.setCancelled(true);
         }
+    }
+
+    @EventHandler
+    public void onTimeSecondEvent(TimeSecondEvent event){
+        plugin.getController().getBoxes().forEach(box -> {
+            if (box.getI() < 40) {
+                box.itemRotate();
+            }
+        });
     }
 }
