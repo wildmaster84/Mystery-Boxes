@@ -18,7 +18,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 
@@ -53,160 +52,154 @@ public class Box implements Listener {
         owner.openInventory(inv);
 
         plugin.getController().create(this);
-
-        //itemRotate(inventory);
     }
 
     public void win(ItemStack stack) {
         if (owner == null) return;
 
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                BoxItem item = null;
+        BoxItem item = null;
 
-                for (BoxItem i : type.getItems()) {
-                    if (i.getItem().equals(stack)) {
-                        item = i;
-                        break;
-                    }
-                }
-
-                owner.closeInventory();
-
-                if (item == null) return;
-
-                if (item.getCommand() == null || item.getCommand().equalsIgnoreCase("")) {
-                    if (owner.getInventory().firstEmpty() == -1) {
-                        owner.getWorld().dropItem(owner.getLocation(), stack);
-                    } else {
-                        owner.getInventory().addItem(stack);
-                    }
-                } else {
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), item.getCommand().replaceAll("%player%", owner.getName()));
-                }
-
-                if (!item.getItem().hasItemMeta() || !item.getItem().getItemMeta().hasDisplayName() || item.getRarity().getPercentage() > 10)
-                    return;
-
-                TextComponent message = new TextComponent("");
-
-                BaseComponent baseComponent = new TextComponent(Main.broadcastRare(owner.getName(), item.getRarity(), type));
-                baseComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{new TextComponent(stack.getItemMeta().getDisplayName())}));
-
-                message.addExtra(baseComponent);
-
-                Bukkit.getOnlinePlayers().forEach(player -> player.spigot().sendMessage(message));
-
-                owner.getWorld().strikeLightningEffect(owner.getLocation());
+        for (BoxItem i : type.getItems()) {
+            if (i.getItem().equals(stack)) {
+                item = i;
+                break;
             }
-        }.runTaskLaterAsynchronously(Main.getInstance(), 40L);
+        }
+
+        if (owner.getOpenInventory().getTopInventory().equals(inv))
+            owner.closeInventory();
+
+        if (item == null) return;
+
+        if (item.getCommand() == null || item.getCommand().equalsIgnoreCase("")) {
+            if (owner.getInventory().firstEmpty() == -1) {
+                owner.getWorld().dropItem(owner.getLocation(), stack);
+            } else {
+                owner.getInventory().addItem(stack);
+            }
+        } else {
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), item.getCommand().replaceAll("%player%", owner.getName()));
+        }
+
+        if (!item.getItem().hasItemMeta() || !item.getItem().getItemMeta().hasDisplayName() || item.getRarity().getPercentage() > 10)
+            return;
+
+        TextComponent message = new TextComponent("");
+
+        BaseComponent baseComponent = new TextComponent(Main.broadcastRare(owner.getName(), item.getRarity(), type));
+        baseComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{new TextComponent(stack.getItemMeta().getDisplayName())}));
+
+        message.addExtra(baseComponent);
+
+        Bukkit.getOnlinePlayers().forEach(player -> player.spigot().sendMessage(message));
+
+        owner.getWorld().strikeLightningEffect(owner.getLocation());
 
         plugin.getController().remove(this);
     }
 
     public void itemRotate() {
         if (owner == null) return;
-        if (items == null)
-            items = new HashMap<>();
+        if (items == null) items = new HashMap<>();
 
         i++;
-        rotation++;
 
-        owner.playSound(owner.getLocation(), Sound.CLICK, 1F, 1F);
+        if (i < 40) {
+            rotation++;
 
-        if (rotation == 2) {
-            inv.setItem(11, items.get(10).getItem());
-            items.put(11, items.get(10));
+            owner.playSound(owner.getLocation(), Sound.CLICK, 1F, 1F);
 
-        } else if (rotation == 3) {
-            inv.setItem(12, items.get(11).getItem());
-            items.put(12, items.get(11));
+            if (rotation == 2) {
+                inv.setItem(11, items.get(10).getItem());
+                items.put(11, items.get(10));
 
-            inv.setItem(11, items.get(10).getItem());
-            items.put(11, items.get(10));
-        } else if (rotation == 4) {
-            inv.setItem(13, items.get(12).getItem());
-            items.put(13, items.get(12));
+            } else if (rotation == 3) {
+                inv.setItem(12, items.get(11).getItem());
+                items.put(12, items.get(11));
 
-            inv.setItem(12, items.get(11).getItem());
-            items.put(12, items.get(11));
+                inv.setItem(11, items.get(10).getItem());
+                items.put(11, items.get(10));
+            } else if (rotation == 4) {
+                inv.setItem(13, items.get(12).getItem());
+                items.put(13, items.get(12));
 
-            inv.setItem(11, items.get(10).getItem());
-            items.put(11, items.get(10));
-        } else if (rotation == 5) {
-            inv.setItem(14, items.get(13).getItem());
-            items.put(14, items.get(13));
+                inv.setItem(12, items.get(11).getItem());
+                items.put(12, items.get(11));
 
-            inv.setItem(13, items.get(12).getItem());
-            items.put(13, items.get(12));
+                inv.setItem(11, items.get(10).getItem());
+                items.put(11, items.get(10));
+            } else if (rotation == 5) {
+                inv.setItem(14, items.get(13).getItem());
+                items.put(14, items.get(13));
 
-            inv.setItem(12, items.get(11).getItem());
-            items.put(12, items.get(11));
+                inv.setItem(13, items.get(12).getItem());
+                items.put(13, items.get(12));
 
-            inv.setItem(11, items.get(10).getItem());
-            items.put(11, items.get(10));
-        } else if (rotation == 6) {
-            inv.setItem(15, items.get(14).getItem());
-            items.put(15, items.get(14));
+                inv.setItem(12, items.get(11).getItem());
+                items.put(12, items.get(11));
 
-            inv.setItem(14, items.get(13).getItem());
-            items.put(14, items.get(13));
+                inv.setItem(11, items.get(10).getItem());
+                items.put(11, items.get(10));
+            } else if (rotation == 6) {
+                inv.setItem(15, items.get(14).getItem());
+                items.put(15, items.get(14));
 
-            inv.setItem(13, items.get(12).getItem());
-            items.put(13, items.get(12));
+                inv.setItem(14, items.get(13).getItem());
+                items.put(14, items.get(13));
 
-            inv.setItem(12, items.get(11).getItem());
-            items.put(12, items.get(11));
+                inv.setItem(13, items.get(12).getItem());
+                items.put(13, items.get(12));
 
-            inv.setItem(11, items.get(10).getItem());
-            items.put(11, items.get(10));
-        } else if (rotation == 7) {
-            inv.setItem(16, items.get(15).getItem());
-            items.put(16, items.get(15));
+                inv.setItem(12, items.get(11).getItem());
+                items.put(12, items.get(11));
 
-            inv.setItem(15, items.get(14).getItem());
-            items.put(15, items.get(14));
+                inv.setItem(11, items.get(10).getItem());
+                items.put(11, items.get(10));
+            } else if (rotation == 7) {
+                inv.setItem(16, items.get(15).getItem());
+                items.put(16, items.get(15));
 
-            inv.setItem(14, items.get(13).getItem());
-            items.put(14, items.get(13));
+                inv.setItem(15, items.get(14).getItem());
+                items.put(15, items.get(14));
 
-            inv.setItem(13, items.get(12).getItem());
-            items.put(13, items.get(12));
+                inv.setItem(14, items.get(13).getItem());
+                items.put(14, items.get(13));
 
-            inv.setItem(12, items.get(11).getItem());
-            items.put(12, items.get(11));
+                inv.setItem(13, items.get(12).getItem());
+                items.put(13, items.get(12));
 
-            inv.setItem(11, items.get(10).getItem());
-            items.put(11, items.get(10));
-        } else if (rotation > 7) {
-            items.remove(16);
+                inv.setItem(12, items.get(11).getItem());
+                items.put(12, items.get(11));
 
-            inv.setItem(16, items.get(15).getItem());
-            items.put(16, items.get(15));
+                inv.setItem(11, items.get(10).getItem());
+                items.put(11, items.get(10));
+            } else if (rotation > 7) {
+                items.remove(16);
 
-            inv.setItem(15, items.get(14).getItem());
-            items.put(15, items.get(14));
+                inv.setItem(16, items.get(15).getItem());
+                items.put(16, items.get(15));
 
-            inv.setItem(14, items.get(13).getItem());
-            items.put(14, items.get(13));
+                inv.setItem(15, items.get(14).getItem());
+                items.put(15, items.get(14));
 
-            inv.setItem(13, items.get(12).getItem());
-            items.put(13, items.get(12));
+                inv.setItem(14, items.get(13).getItem());
+                items.put(14, items.get(13));
 
-            inv.setItem(12, items.get(11).getItem());
-            items.put(12, items.get(11));
+                inv.setItem(13, items.get(12).getItem());
+                items.put(13, items.get(12));
 
-            inv.setItem(11, items.get(10).getItem());
-            items.put(11, items.get(10));
-        }
+                inv.setItem(12, items.get(11).getItem());
+                items.put(12, items.get(11));
 
-        BoxItem randomItem = randomItem();
+                inv.setItem(11, items.get(10).getItem());
+                items.put(11, items.get(10));
+            }
 
-        inv.setItem(10, randomItem.getItem());
-        items.put(10, randomItem);
+            BoxItem randomItem = randomItem();
 
-        if (i == 40){
+            inv.setItem(10, randomItem.getItem());
+            items.put(10, randomItem);
+        } else if (i == 48) {
             win(inv.getItem(13));
         }
 

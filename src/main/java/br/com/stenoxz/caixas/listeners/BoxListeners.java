@@ -8,7 +8,6 @@ import br.com.stenoxz.caixas.type.BoxType;
 import br.com.stenoxz.caixas.utils.TextUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -80,10 +79,6 @@ public class BoxListeners implements Listener {
 
     @EventHandler
     public void onTimeSecondEvent(TimeSecondEvent event){
-        plugin.getController().getBoxes().forEach(box -> {
-            if (box.getI() < 40) {
-                box.itemRotate();
-            }
-        });
+        plugin.getController().getBoxes().forEach(Box::itemRotate);
     }
 }
