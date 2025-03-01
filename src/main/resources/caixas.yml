@@ -5,42 +5,42 @@ basica:
     displayName: '§eBásica'
     icon:
       name: '&eCaixa Básica'
-      id: '54'
+      id: 'WOODEN_DOOR'
       data: '0'
       lore:
         - '&fCaixa mais simples'
-      enchantments: #Encatamento ID;Level#
+      enchantments: #Encatamento Name;Level#
         - ''
     #Tem que ter todos os valores, mesmo que forem ficar vazio#
     items:
       1:
         name: '' #Deixe vazio se for o name padrão#
-        id: '276'
+        id: 'DIAMOND_SWORD'
         data: '0'
         amount: '1'
         rarity: 'incomum' #As raridades do raridades.yml#
         lore:
           - ''
         enchantments:
-          - '16;1'
+          - 'SHARPNESS;1'
         #Caso tenha command, o jogador ganhará o comanndo e não o item. %player% = nick do ganhador#
         command: ''
       2:
         name: '&5Espada Fortona'
-        id: '276'
+        id: 'DIAMOND_SWORD'
         data: '0'
         amount: '1'
         rarity: 'raro'
         lore:
           - ''
         enchantments:
-          - '16;5'
-          - '34;3'
-          - '19;2'
+          - 'SHARPNESS;5'
+          - 'UNBREAKING;3'
+          - 'KNOCKBACK;2'
         command: ''
       3:
         name: ''
-        id: '368'
+        id: 'ENDER_PEARL'
         data: '0'
         amount: '16'
         rarity: 'comum'

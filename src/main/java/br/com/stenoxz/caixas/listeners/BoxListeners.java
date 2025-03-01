@@ -17,68 +17,70 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 public class BoxListeners implements Listener {
+   private final Main plugin;
 
-    private final Main plugin;
+   public BoxListeners(Main plugin) {
+      this.plugin = plugin;
+   }
 
-    public BoxListeners(Main plugin){
-        this.plugin = plugin;
-    }
+   @EventHandler
+   public void onPlayerInteract(PlayerInteractEvent event) {
+      Player player = event.getPlayer();
+      if (event.getItem() != null && event.getItem().hasItemMeta() && event.getItem().getItemMeta().hasDisplayName()) {
+         ItemStack stack = event.getItem();
 
-    @EventHandler
-    public void onPlayerInteract(PlayerInteractEvent event){
-        Player player = event.getPlayer();
+         for (BoxType type : this.plugin.getController().getTypes()) {
+            if (stack.getItemMeta().equals(type.getIcon().getItemMeta()) && stack.getItemMeta().getLore().equals(type.getIcon().getItemMeta().getLore())) {
+               event.setCancelled(true);
+               if (event.getAction().toString().contains("RIGHT")) {
+                  if (stack.getAmount() == 1) {
+                     player.setItemInHand(null);
+                  } else {
+                     stack.setAmount(stack.getAmount() - 1);
+                  }
 
-        if (event.getItem() != null &&
-                event.getItem().hasItemMeta() &&
-                event.getItem().getItemMeta().hasDisplayName()){
-            ItemStack stack = event.getItem();
+                  Box box = this.plugin.getFactory().newBox(type, player.getName());
+                  box.openBox();
+               } else {
+                  Inventory inventory = Bukkit.createInventory(null, 54, "Itens da Caixa " + type.getName());
 
-            for (BoxType type : plugin.getController().getTypes()) {
-                if (stack.getItemMeta().equals(type.getIcon().getItemMeta()) &&
-                        stack.getItemMeta().getLore().equals(type.getIcon().getItemMeta().getLore())){
-                    event.setCancelled(true);
+                  for (BoxItem item : type.getItems()) {
+                     inventory.addItem(new ItemStack[]{item.getItem()});
+                  }
 
-                    if (event.getAction().toString().contains("RIGHT")) {
-                        if (stack.getAmount() == 1){
-                            player.setItemInHand(null);
-                        } else {
-                            stack.setAmount(stack.getAmount() - 1);
-                        }
-
-                        Box box = plugin.getFactory().newBox(type, player.getName());
-                        box.openBox();
-                    } else {
-                        Inventory inventory = Bukkit.createInventory(null, 54, "Itens da Caixa " + type.getName());
-
-                        for (BoxItem item : type.getItems()){
-                            inventory.addItem(item.getItem());
-                        }
-
-                        player.openInventory(inventory);
-                    }
-                    break;
-                }
+                  player.openInventory(inventory);
+               }
+               break;
             }
-        }
-    }
+         }
+      }
+   }
 
-    @EventHandler
-    public void onInventoryClick(InventoryClickEvent event){
-        if (event.getClickedInventory() == null || event.getClickedInventory().getTitle() == null) return;
-
-        plugin.getController().getTypes().forEach(type -> {
-            if (TextUtils.format(event.getClickedInventory().getTitle(), type).equals(TextUtils.format(Main.inventoryTitle, type)) || event.getClickedInventory().getTitle().startsWith("Itens da Caixa")){
-                event.setCancelled(true);
-            }
-        });
-
-        if (event.getInventory().getTitle().replaceAll("%type%", "").equals(ChatColor.translateAlternateColorCodes('&', Main.inventoryTitle).replaceAll("%type%", ""))){
+   @EventHandler
+   public void onInventoryClick(InventoryClickEvent event) {
+      if (event.getClickedInventory() != null && !event.getView().getTitle().isEmpty()) {
+         this.plugin
+            .getController()
+            .getTypes()
+            .forEach(
+               type -> {
+                  if (TextUtils.format(event.getView().getTitle(), type).equals(TextUtils.format(Main.inventoryTitle, type))
+                     || event.getView().getTitle().startsWith("Itens da Caixa")) {
+                     event.setCancelled(true);
+                  }
+               }
+            );
+         if (event.getView()
+            .getTitle()
+            .replaceAll("%type%", "")
+            .equals(ChatColor.translateAlternateColorCodes('&', Main.inventoryTitle).replaceAll("%type%", ""))) {
             event.setCancelled(true);
-        }
-    }
+         }
+      }
+   }
 
-    @EventHandler
-    public void onTimeSecondEvent(TimeSecondEvent event){
-        plugin.getController().getBoxes().forEach(Box::itemRotate);
-    }
+   @EventHandler
+   public void onTimeSecondEvent(TimeSecondEvent event) {
+      this.plugin.getController().getBoxes().forEach(Box::itemRotate);
+   }
 }

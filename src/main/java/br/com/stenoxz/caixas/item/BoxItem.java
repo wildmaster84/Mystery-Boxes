@@ -1,21 +1,44 @@
 package br.com.stenoxz.caixas.item;
 
 import br.com.stenoxz.caixas.item.rarity.BoxItemRarity;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
 import org.bukkit.inventory.ItemStack;
 
-@Getter
-@Builder
 public class BoxItem {
+   private ItemStack item;
+   private String command;
+   private BoxItemRarity rarity;
 
-    @Setter
-    private ItemStack item;
+   BoxItem(ItemStack item, String command, BoxItemRarity rarity) {
+      this.item = item;
+      this.command = command;
+      this.rarity = rarity;
+   }
 
-    @Setter
-    private String command;
+   public static BoxItemBuilder builder() {
+      return new BoxItemBuilder();
+   }
 
-    @Setter
-    private BoxItemRarity rarity;
+   public ItemStack getItem() {
+      return this.item;
+   }
+
+   public String getCommand() {
+      return this.command;
+   }
+
+   public BoxItemRarity getRarity() {
+      return this.rarity;
+   }
+
+   public void setItem(ItemStack item) {
+      this.item = item;
+   }
+
+   public void setCommand(String command) {
+      this.command = command;
+   }
+
+   public void setRarity(BoxItemRarity rarity) {
+      this.rarity = rarity;
+   }
 }

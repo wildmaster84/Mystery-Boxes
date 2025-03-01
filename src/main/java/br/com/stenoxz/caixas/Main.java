@@ -10,77 +10,60 @@ import br.com.stenoxz.caixas.type.BoxType;
 import br.com.stenoxz.caixas.utils.Config;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.craftbukkit.v1_8_R3.CraftServer;
+import org.bukkit.craftbukkit.v1_21_R3.CraftServer;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
+   public static Main instance;
+   private BoxController controller;
+   private BoxFactory factory;
+   private Config boxesConfig;
+   private Config raritiesConfig;
+   public static String inventoryTitle;
+   private static String broadcastRareMessage;
 
-    public static Main instance;
+   public static Main getInstance() {
+      return instance;
+   }
 
-    public static Main getInstance() {
-        return instance;
-    }
+   public BoxController getController() {
+      return this.controller;
+   }
 
-    private BoxController controller;
+   public BoxFactory getFactory() {
+      return this.factory;
+   }
 
-    public BoxController getController() {
-        return controller;
-    }
+   public Config getBoxesConfig() {
+      return this.boxesConfig;
+   }
 
-    private BoxFactory factory;
+   public Config getRaritiesConfig() {
+      return this.raritiesConfig;
+   }
 
-    public BoxFactory getFactory() {
-        return factory;
-    }
+   public void onLoad() {
+      this.controller = new BoxController(this);
+      this.factory = new BoxFactory();
+   }
 
-    private Config boxesConfig;
+   public void onEnable() {
+      instance = this;
+      this.saveDefaultConfig();
+      inventoryTitle = this.getConfig().getString("inventoryTitle");
+      broadcastRareMessage = ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("broadcastRare"));
+      this.boxesConfig = new Config("caixas", this);
+      this.raritiesConfig = new Config("raridades", this);
+      this.controller.loadRarities();
+      this.controller.loadTypes();
+      Bukkit.getPluginManager().registerEvents(new BoxListeners(this), this);
+      ((CraftServer)Bukkit.getServer()).getCommandMap().register("givebox", new GiveBoxCommand(this));
+      Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> new TimeSecondEvent().call(), 0L, 5L);
+   }
 
-    public Config getBoxesConfig() {
-        return boxesConfig;
-    }
-
-    private Config raritiesConfig;
-
-    public Config getRaritiesConfig() {
-        return raritiesConfig;
-    }
-
-    public static String inventoryTitle;
-
-    private static String broadcastRareMessage;
-
-    @Override
-    public void onLoad() {
-        controller = new BoxController(this);
-        factory = new BoxFactory();
-    }
-
-    @Override
-    public void onEnable() {
-        instance = this;
-
-        saveDefaultConfig();
-
-        inventoryTitle = getConfig().getString("inventoryTitle");
-        broadcastRareMessage = ChatColor.translateAlternateColorCodes('&', getConfig().getString("broadcastRare"));
-
-        boxesConfig = new Config("caixas", this);
-
-        raritiesConfig = new Config("raridades", this);
-
-        controller.loadRarities();
-        controller.loadTypes();
-
-        Bukkit.getPluginManager().registerEvents(new BoxListeners(this), this);
-
-        ((CraftServer)Bukkit.getServer()).getCommandMap().register("givebox", new GiveBoxCommand(this));
-
-        Bukkit.getScheduler().scheduleAsyncRepeatingTask(this, () -> {
-            new TimeSecondEvent().call();
-        }, 0L, 5L);
-    }
-
-    public static String broadcastRare(String playerName, BoxItemRarity rarity, BoxType type){
-        return broadcastRareMessage.replaceAll("%player%", playerName).replaceAll("%rarity%", rarity.getDisplayName()).replaceAll("%type%", type.getDisplayName());
-    }
+   public static String broadcastRare(String playerName, BoxItemRarity rarity, BoxType type) {
+      return broadcastRareMessage.replaceAll("%player%", playerName)
+         .replaceAll("%rarity%", rarity.getDisplayName())
+         .replaceAll("%type%", type.getDisplayName());
+   }
 }

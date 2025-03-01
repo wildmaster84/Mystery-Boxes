@@ -5,19 +5,17 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 public class TimeSecondEvent extends Event {
+   private static final HandlerList handlerList = new HandlerList();
 
-    private static final HandlerList handlerList = new HandlerList();
+   public static HandlerList getHandlerList() {
+      return handlerList;
+   }
 
-    public static HandlerList getHandlerList() {
-        return handlerList;
-    }
+   public HandlerList getHandlers() {
+      return handlerList;
+   }
 
-    @Override
-    public HandlerList getHandlers() {
-        return handlerList;
-    }
-
-    public void call() {
-        Bukkit.getPluginManager().callEvent(this);
-    }
+   public void call() {
+      Bukkit.getPluginManager().callEvent(this);
+   }
 }

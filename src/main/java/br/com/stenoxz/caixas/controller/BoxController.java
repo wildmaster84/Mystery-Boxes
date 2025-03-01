@@ -8,79 +8,89 @@ import br.com.stenoxz.caixas.item.rarity.BoxItemRarity;
 import br.com.stenoxz.caixas.type.BoxType;
 import br.com.stenoxz.caixas.utils.Config;
 import com.google.common.collect.Sets;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import java.util.Set;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
-import java.util.Set;
-
-@Getter
-@RequiredArgsConstructor
 public class BoxController {
+   private final Main plugin;
+   private Set<BoxItemRarity> rarities = Sets.newConcurrentHashSet();
+   private Set<BoxType> types = Sets.newConcurrentHashSet();
+   private Set<Box> boxes = Sets.newConcurrentHashSet();
 
-    private final Main plugin;
+   public void loadRarities() {
+      BoxItemRarityFactory factory = new BoxItemRarityFactory();
+      Config raritiesConfig = this.plugin.getRaritiesConfig();
 
-    private Set<BoxItemRarity> rarities;
+      for (String string : raritiesConfig.getConfig().getKeys(false)) {
+         this.rarities
+            .add(
+               factory.newRarity(
+                  (String)raritiesConfig.get(string + ".name"),
+                  (String)raritiesConfig.get(string + ".displayName"),
+                  (Integer)raritiesConfig.get(string + ".percentage")
+               )
+            );
+      }
+   }
 
-    private Set<BoxType> types;
+   public void loadTypes() {
+      BoxTypeFactory factory = new BoxTypeFactory(this.plugin);
+      FileConfiguration config = this.plugin.getBoxesConfig().getConfig();
 
-    private Set<Box> boxes;
+      for (String string : config.getKeys(false)) {
+         this.types
+            .add(
+               factory.newType(
+                  config.getString(string + ".tipo.name"), config.getString(string + ".tipo.displayName"), string + ".tipo.icon", string + ".tipo.items"
+               )
+            );
+      }
+   }
 
-    {
-        rarities = Sets.newConcurrentHashSet();
-        types = Sets.newConcurrentHashSet();
-        boxes = Sets.newConcurrentHashSet();
-    }
+   public BoxItemRarity rarity(String name) {
+      return (BoxItemRarity)this.rarities.stream().filter(rarity -> rarity.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
+   }
 
-    public void loadRarities() {
-        BoxItemRarityFactory factory = new BoxItemRarityFactory();
+   public BoxType type(String name) {
+      return (BoxType)this.types.stream().filter(type -> type.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
+   }
 
-        Config raritiesConfig = plugin.getRaritiesConfig();
+   public void create(Box box) {
+      this.boxes.add(box);
+   }
 
-        for (String string : raritiesConfig.getConfig().getKeys(false)) {
-            rarities.add(factory.newRarity((String) raritiesConfig.get(string + ".name"),
-                    (String) raritiesConfig.get(string + ".displayName"),
-                    (int) raritiesConfig.get(string + ".percentage")));
-        }
-    }
+   public void remove(Box box) {
+      this.boxes.remove(box);
+   }
 
-    public void loadTypes() {
-        BoxTypeFactory factory = new BoxTypeFactory(plugin);
+   public void giveBox(Player player, BoxType type) {
+      Box box = this.plugin.getFactory().newBox(type, player.getName());
+      if (player.getInventory().firstEmpty() == -1) {
+         player.getWorld().dropItem(player.getLocation(), box.getItem());
+      } else {
+         player.getInventory().addItem(new ItemStack[]{box.getItem()});
+      }
+   }
 
-        FileConfiguration config = plugin.getBoxesConfig().getConfig();
+   public Main getPlugin() {
+      return this.plugin;
+   }
 
-        for (String string : config.getKeys(false)) {
-            types.add(factory.newType(config.getString(string + ".tipo.name"),
-                    config.getString(string + ".tipo.displayName"),
-                    string + ".tipo.icon",
-                    string + ".tipo.items"));
-        }
-    }
+   public Set<BoxItemRarity> getRarities() {
+      return this.rarities;
+   }
 
-    public BoxItemRarity rarity(String name) {
-        return rarities.stream().filter(rarity -> rarity.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
-    }
+   public Set<BoxType> getTypes() {
+      return this.types;
+   }
 
-    public BoxType type(String name) {
-        return types.stream().filter(type -> type.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
-    }
+   public Set<Box> getBoxes() {
+      return this.boxes;
+   }
 
-    public void create(Box box){
-        boxes.add(box);
-    }
-
-    public void remove(Box box){
-        boxes.remove(box);
-    }
-
-    public void giveBox(Player player, BoxType type) {
-        Box box = plugin.getFactory().newBox(type, player.getName());
-
-        if (player.getInventory().firstEmpty() == -1) {
-            player.getWorld().dropItem(player.getLocation(), box.getItem());
-        } else {
-            player.getInventory().addItem(box.getItem());
-        }
-    }
+   public BoxController(Main plugin) {
+      this.plugin = plugin;
+   }
 }

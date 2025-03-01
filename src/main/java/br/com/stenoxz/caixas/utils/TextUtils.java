@@ -1,7 +1,8 @@
 package br.com.stenoxz.caixas.utils;
 
-import br.com.stenoxz.caixas.type.BoxType;
 import org.bukkit.ChatColor;
+
+import br.com.stenoxz.caixas.type.BoxType;
 
 public class TextUtils {
 
